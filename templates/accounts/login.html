@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrimony - Login</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #faf6f6;
+            --card-bg: #ffffff;
+            --primary: #e11d48;
+            --primary-hover: #be123c;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.03) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo span {
+            color: #4b5563;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .auth-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .auth-header p a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-header p a:hover {
+            text-decoration: underline;
+        }
+
+        /* Message Box */
+        .msg-box {
+            display: none;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+
+        .msg-box-error {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .msg-box-success {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            background: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Social Separator */
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .separator:not(:empty)::before {
+            margin-right: .75em;
+        }
+
+        .separator:not(:empty)::after {
+            margin-left: .75em;
+        }
+
+        .google-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+    </style>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <div class="auth-card">
+        <div class="logo">Matrimony</div>
+        
+        <div class="auth-header">
+            <h3>Sign In</h3>
+            <p>New to Eternal Bond? <a href="/register/">Register here</a></p>
+        </div>
+
+        <!-- Inline Notification Area -->
+        <div id="msg-box" class="msg-box"></div>
+
+        <!-- Login Form -->
+        <div class="form-group">
+            <label for="login-username">Mobile Number or Email</label>
+            <input type="text" id="login-username" placeholder="Enter mobile or email">
+        </div>
+
+        <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="Enter password">
+        </div>
+
+        <div class="form-group" style="text-align: right; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+            <a href="#" onclick="openForgotModal()" style="font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 600;">Forgot Password?</a>
+        </div>
+
+        <button class="btn-primary" style="margin-top: 0.5rem;" onclick="login()">Sign In</button>
+
+        <div class="separator">Or Sign In With</div>
+
+        <div class="google-btn-container">
+            <div id="g_id_onload"
+                 data-client_id="{{ google_client_id }}"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_select="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="320">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let msgTimeout;
+        function showMessage(type, text) {
+            const box = document.getElementById('msg-box');
+            clearTimeout(msgTimeout);
+            
+            box.innerText = text;
+            box.className = 'msg-box'; // reset
+            
+            if (type === 'ERROR') {
+                box.classList.add('msg-box-error');
+            } else {
+                box.classList.add('msg-box-success');
+            }
+            
+            box.style.display = 'block';
+            msgTimeout = setTimeout(() => {
+                box.style.display = 'none';
+            }, 6000);
+        }
+
+        async function apiRequest(url, method, body) {
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body ? JSON.stringify(body) : null
+                });
+                
+                const data = await response.json();
+                return { ok: response.ok, status: response.status, data };
+            } catch (err) {
+                return { ok: false, error: err.message };
+            }
+        }
+
+        async function login() {
+            const phone_or_email = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!phone_or_email || !password) {
+                showMessage('ERROR', 'Please enter your mobile number or email and password.');
+                return;
+            }
+
+            const res = await apiRequest('/api/login', 'POST', { phone_or_email, password });
+            if (res.ok) {
+                console.log("SUCCESSFULLY LOGGED IN");
+                console.log("Access Token:", res.data.data.access_token);
+                console.log("Refresh Token:", res.data.data.refresh_token);
+                localStorage.setItem('access_token', res.data.data.access_token);
+                localStorage.setItem('refresh_token', res.data.data.refresh_token);
+                showMessage('SUCCESS', 'Login Successful! Redirecting to chat...');
+                setTimeout(() => {
+                    window.location.href = '/chat/';
+                }, 1000);
+            } else {
+                let errorMsg = 'Login Failed.';
+                if (res.data && res.data.message) {
+                    errorMsg = res.data.message;
+                } else if (res.data && res.data.detail && Array.isArray(res.data.detail)) {
+                    errorMsg = res.data.detail.map(d => d.msg.replace('Value error, ', '')).join('\n');
+                }
+                showMessage('ERROR', errorMsg);
+            }
+        }
+
+        async function handleCredentialResponse(response) {
+            const token = response.credential;
+            console.log('Google credential response received:', response);
+            const res = await apiRequest('/api/google-login', 'POST', { id_token: token, action: 'login' });
+
+            if (res.ok) {
+                console.log("SUCCESSFULLY LOGGED IN WITH GOOGLE");
+                console.log("Access Token:", res.data.data.access_token);
+                console.log("Refresh Token:", res.data.data.refresh_token);
+                localStorage.setItem('access_token', res.data.data.access_token);
+                localStorage.setItem('refresh_token', res.data.data.refresh_token);
+                showMessage('SUCCESS', 'Google Sign In Successful! Redirecting to chat...');
+                setTimeout(() => {
+                    window.location.href = '/chat/';
+                }, 1000);
+            } else {
+                let errorMsg = 'Google Authentication Failed.';
+                if (res.data && res.data.message) {
+                    errorMsg = res.data.message;
+                }
+                showMessage('ERROR', errorMsg);
+                if (res.data && res.data.message && (res.data.message.includes('not registered') || res.data.message.includes('register first'))) {
+                    setTimeout(() => {
+                        window.location.href = '/register/';
+                    }, 2000);
+                }
+            }
+        }
+
+
+        // Ensure the callback is available on the window object for the GSI library
+        window.handleCredentialResponse = handleCredentialResponse;
+
+        let forgotVerifiedOTP = "";
+
+        function openForgotModal() {
+            document.getElementById('forgot-overlay').style.display = 'flex';
+            document.getElementById('forgot-msg-box').style.display = 'none';
+            document.getElementById('forgot-otp-group').style.display = 'none';
+            document.getElementById('forgot-password-group').style.display = 'none';
+            document.getElementById('forgot-phone-or-email').value = '';
+            document.getElementById('forgot-otp').value = '';
+            document.getElementById('forgot-new-password').value = '';
+            document.getElementById('forgot-confirm-password').value = '';
+            forgotVerifiedOTP = "";
+            document.getElementById('forgot-otp-status').innerText = 'Unverified';
+            document.getElementById('forgot-otp-status').style.color = 'var(--error)';
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgot-overlay').style.display = 'none';
+        }
+
+        let forgotMsgTimeout;
+        function showForgotMessage(type, text) {
+            const box = document.getElementById('forgot-msg-box');
+            clearTimeout(forgotMsgTimeout);
+            
+            box.innerText = text;
+            box.className = 'msg-box';
+            
+            if (type === 'ERROR') {
+                box.classList.add('msg-box-error');
+            } else {
+                box.classList.add('msg-box-success');
+            }
+            
+            box.style.display = 'block';
+            forgotMsgTimeout = setTimeout(() => {
+                box.style.display = 'none';
+            }, 6000);
+        }
+
+        async function sendForgotOTP() {
+            const phone_or_email = document.getElementById('forgot-phone-or-email').value.trim();
+            if (!phone_or_email) {
+                showForgotMessage('ERROR', 'Please enter your phone or email.');
+                return;
+            }
+
+            const res = await apiRequest('/api/forgot-password-send-otp', 'POST', { phone_or_email });
+            if (res.ok) {
+                showForgotMessage('SUCCESS', 'OTP sent successfully! Check Django terminal.');
+                document.getElementById('forgot-otp-group').style.display = 'block';
+            } else {
+                showForgotMessage('ERROR', res.data.message || 'Failed to send OTP.');
+            }
+        }
+
+        async function verifyForgotOTP() {
+            const phone_or_email = document.getElementById('forgot-phone-or-email').value.trim();
+            const otp = document.getElementById('forgot-otp').value.trim();
+            if (!otp) {
+                showForgotMessage('ERROR', 'Please enter the OTP.');
+                return;
+            }
+
+            const res = await apiRequest('/api/forgot-password-verify-otp', 'POST', { phone_or_email, otp });
+            if (res.ok) {
+                showForgotMessage('SUCCESS', 'OTP verified! Enter your new password.');
+                forgotVerifiedOTP = otp;
+                document.getElementById('forgot-otp-status').innerText = 'Verified';
+                document.getElementById('forgot-otp-status').style.color = 'var(--success)';
+                document.getElementById('forgot-password-group').style.display = 'block';
+            } else {
+                showForgotMessage('ERROR', res.data.message || 'Invalid OTP.');
+            }
+        }
+
+        async function resetPasswordSubmit() {
+            const phone_or_email = document.getElementById('forgot-phone-or-email').value.trim();
+            const password = document.getElementById('forgot-new-password').value;
+            const confirm_password = document.getElementById('forgot-confirm-password').value;
+
+            if (!password || !confirm_password) {
+                showForgotMessage('ERROR', 'Please fill in password fields.');
+                return;
+            }
+            if (password !== confirm_password) {
+                showForgotMessage('ERROR', 'Passwords do not match.');
+                return;
+            }
+            if (!forgotVerifiedOTP) {
+                showForgotMessage('ERROR', 'Please verify OTP first.');
+                return;
+            }
+
+            const res = await apiRequest('/api/forgot-password-reset', 'POST', {
+                phone_or_email,
+                password,
+                confirm_password,
+                otp: forgotVerifiedOTP
+            });
+
+            if (res.ok) {
+                showForgotMessage('SUCCESS', 'Password reset successfully! Redirecting...');
+                setTimeout(() => {
+                    closeForgotModal();
+                    showMessage('SUCCESS', 'Password reset successfully! Please sign in.');
+                }, 2000);
+            } else {
+                showForgotMessage('ERROR', res.data.message || 'Reset failed.');
+            }
+        }
+    </script>
+
+    <!-- Forgot Password Modal Overlay -->
+    <div class="google-complete-overlay" id="forgot-overlay" style="display: none;">
+        <div class="google-complete-card">
+            <h3 style="color: var(--primary); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">Forgot Password</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Reset your password using mobile number or email verification.</p>
+            
+            <div id="forgot-msg-box" class="msg-box"></div>
+
+            <!-- Step 1: Input Identifier -->
+            <div class="form-group">
+                <label for="forgot-phone-or-email">Mobile Number or Email</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="forgot-phone-or-email" placeholder="e.g. 9876543210 or email@domain.com">
+                    <button class="btn-primary" style="width: auto; padding: 0.75rem 1rem; white-space: nowrap;" onclick="sendForgotOTP()">Send OTP</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Verify OTP (Initially hidden) -->
+            <div class="form-group" id="forgot-otp-group" style="display: none; padding: 1rem; background: #fff5f6; border-radius: 12px; border: 1px solid rgba(225, 29, 72, 0.1); margin-bottom: 1rem;">
+                <label for="forgot-otp">Enter OTP (printed in console)</label>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <input type="text" id="forgot-otp" placeholder="6-digit OTP">
+                    <button class="btn-primary" style="width: auto; padding: 0.75rem 1rem; white-space: nowrap;" onclick="verifyForgotOTP()">Verify</button>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                    Status: <span id="forgot-otp-status" style="color: var(--error);">Unverified</span>
+                </div>
+            </div>
+
+            <!-- Step 3: Enter New Passwords (Initially hidden) -->
+            <div id="forgot-password-group" style="display: none;">
+                <div class="form-group">
+                    <label for="forgot-new-password">New Password</label>
+                    <input type="password" id="forgot-new-password" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="forgot-confirm-password">Confirm Password</label>
+                    <input type="password" id="forgot-confirm-password" placeholder="Confirm new password">
+                </div>
+                <button class="btn-primary" style="margin-top: 1rem;" onclick="resetPasswordSubmit()">Reset Password</button>
+            </div>
+
+            <button class="btn-primary" style="background: #ffffff; color: var(--text-main); border: 1px solid var(--border-color); margin-top: 0.75rem; box-shadow: none;" onclick="closeForgotModal()">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>

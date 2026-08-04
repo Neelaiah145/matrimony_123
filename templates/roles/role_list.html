@@ -1,0 +1,200 @@
+{% extends "admin-dashboard.html" %}
+{% load static %}
+
+{% block title %}Roles & Permissions{% endblock %}
+{% block page_title %}Roles & Permissions{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-6">
+                <h5 class="mb-0">
+                    <i class="fa-solid fa-user-shield text-primary"></i>
+                    Roles
+                </h5>
+            </div>
+
+            <div class="col-md-6 text-end">
+                <a href="{% url 'role_permissions' %}" class="btn btn-outline-primary me-2" style="border-radius: 8px;">
+                    <i class="fa-solid fa-table-cells me-1"></i>
+                    Permissions Matrix
+                </a>
+                <a href="{% url 'role_create' %}" class="btn btn-primary" style="border-radius: 8px;">
+                    <i class="fa fa-plus me-1"></i>
+                    Add New Role
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="get">
+
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+
+                    <input type="text" class="form-control" name="search" placeholder="Search role..."
+                        value="{{ request.GET.search }}">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-dark w-100">
+
+                        Search
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        <table class="table table-hover align-middle">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Role</th>
+
+                    <th>Code</th>
+
+                    <th>Description</th>
+
+                    <th>Permissions</th>
+
+                    <th>Users</th>
+
+                    <th>Status</th>
+
+                    <th width="180">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for role in roles %}
+
+                <tr>
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+
+                        <strong>{{ role.name }}</strong>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-secondary">
+
+                            {{ role.code }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {{ role.description|default:"-" }}
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-primary">
+
+                            {{ role.permissions.count }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-success">
+
+                            {{ role.users.count }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {% if role.is_active %}
+
+                        <span class="badge bg-success">
+
+                            Active
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-danger">
+
+                            Inactive
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-1 flex-nowrap">
+                            <a href="{% url 'role_detail' role.id %}" class="btn btn-sm btn-info text-white">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a href="{% url 'role_edit' role.id %}" class="btn btn-sm btn-warning">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'role_delete' role.id %}" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="8" class="text-center text-muted">
+
+                        No Roles Found
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

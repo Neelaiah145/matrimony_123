@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrimony - Register</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #faf6f6;
+            --card-bg: #ffffff;
+            --primary: #e11d48;
+            --primary-hover: #be123c;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.03) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 1.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo span {
+            color: #4b5563;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .auth-header h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .auth-header p a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-header p a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .toast-msg {
+            background: #ffffff;
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            animation: slideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        .toast-msg-error {
+            border-left-color: var(--error);
+            background: #fef2f2;
+        }
+
+        .toast-msg-success {
+            border-left-color: var(--success);
+            background: #f0fdf4;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            background: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            color: var(--text-main);
+            font-size: 0.875rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.08);
+        }
+
+        input[readonly] {
+            background: #f3f4f6;
+            cursor: not-allowed;
+            color: var(--text-muted);
+        }
+
+        .row-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 500px) {
+            .row-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .checkbox-group input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Social Separator */
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin: 0.75rem 0;
+        }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .separator:not(:empty)::before {
+            margin-right: .75em;
+        }
+
+        .separator:not(:empty)::after {
+            margin-left: .75em;
+        }
+
+        .google-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Overlay */
+        .google-complete-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 900;
+            padding: 1rem;
+        }
+
+        .google-complete-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            padding: 1.75rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            max-height: 95vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <!-- Top Right Toast Container -->
+    <div id="toast-container"></div>
+
+    <div class="auth-card">
+        <div class="logo">Matrimony</div>
+        
+        <div class="auth-header">
+            <h3>Create Account</h3>
+            <p>Already have an account? <a href="/login/">Sign in here</a></p>
+        </div>
+
+        <div class="google-btn-container">
+            <div id="g_id_onload"
+                 data-client_id="{{ google_client_id }}"
+                 data-context="signup"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_select="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signup_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="320">
+            </div>
+        </div>
+
+        <div class="separator">Or Register with Credentials</div>
+
+        <!-- Profile Details Form -->
+        <div>
+            <div class="row-grid">
+                <div class="form-group">
+                    <label for="reg-for">Register For</label>
+                    <select id="reg-for" onchange="handleRegisterForChange('reg')">
+                        <option value="SELF">Self</option>
+                        <option value="SON">Son</option>
+                        <option value="DAUGHTER">Daughter</option>
+                        <option value="BROTHER">Brother</option>
+                        <option value="SISTER">Sister</option>
+                        <option value="FRIEND">Friend</option>
+                        <option value="RELATIVE">Relative</option>
+                    </select>
+                </div>
+                <div class="form-group" id="reg-gender-group">
+                    <label for="reg-gender">Gender</label>
+                    <select id="reg-gender">
+                        <option value="">Select Gender</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row-grid">
+                <div class="form-group">
+                    <label for="reg-first-name">First Name</label>
+                    <input type="text" id="reg-first-name" placeholder="Enter first name">
+                </div>
+                <div class="form-group">
+                    <label for="reg-last-name">Last Name</label>
+                    <input type="text" id="reg-last-name" placeholder="Enter last name">
+                </div>
+            </div>
+
+            <div class="row-grid">
+                <div class="form-group">
+                    <label for="reg-dob">Date of Birth</label>
+                    <input type="date" id="reg-dob">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email Address</label>
+                    <input type="email" id="reg-email" placeholder="email@example.com">
+                </div>
+            </div>
+
+            <!-- Phone Verification Section -->
+            <div style="margin-bottom: 1.25rem; padding: 1.25rem; background: #fff5f6; border-radius: 12px; border: 1px solid rgba(225, 29, 72, 0.1);">
+                <label style="color: var(--primary); font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 0.5rem;">Phone Verification</label>
+                <div class="form-group">
+                    <label for="phone-input">Indian Phone Number</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="phone-input" placeholder="e.g. 9876543210">
+                        <button class="btn-secondary" style="width: auto; padding: 0.75rem 1rem;" onclick="sendOTP('reg')">Send OTP</button>
+                    </div>
+                </div>
+                <div class="form-group" id="reg-otp-group" style="display: none;">
+                    <label for="otp-input">Enter OTP (printed in console)</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="otp-input" placeholder="6-digit OTP">
+                        <button class="btn-secondary" style="width: auto; padding: 0.75rem 1rem;" onclick="verifyOTP('reg')">Verify</button>
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-top: 0.5rem;">
+                    Status: <span id="reg-phone-status" style="color: var(--error);">Unverified</span>
+                </div>
+            </div>
+
+            <div class="row-grid">
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" placeholder="Enter password">
+                </div>
+                <div class="form-group">
+                    <label for="reg-confirm-password">Confirm Password</label>
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm password">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 0.5rem;">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="reg-terms">
+                    <span>I accept the Terms & Conditions</span>
+                </label>
+            </div>
+
+            <button class="btn-primary" style="margin-top: 1rem;" onclick="register()">Create Account</button>
+        </div>
+    </div>
+
+    <script>
+        let regVerifiedPhone = "";
+
+        function showMessage(type, text) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-msg toast-msg-${type.toLowerCase()}`;
+            toast.innerHTML = `
+                <span>${text}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); font-weight: bold; margin-left: 10px; line-height: 1;">&times;</button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 6000);
+        }
+
+        window.onload = function() {
+            // Initialize gender visibility state
+            handleRegisterForChange('reg');
+        };
+
+        function handleRegisterForChange(prefix) {
+            const regFor = document.getElementById(`${prefix}-for`).value;
+            const genderGroup = document.getElementById(`${prefix}-gender-group`);
+            const genderSelect = document.getElementById(`${prefix}-gender`);
+            
+            if (regFor === 'SELF' || regFor === 'FRIEND' || regFor === 'RELATIVE') {
+                genderGroup.style.display = 'block';
+            } else {
+                genderGroup.style.display = 'none';
+                
+                // Automatically assign gender based on selected relation
+                if (regFor === 'SON' || regFor === 'BROTHER') {
+                    genderSelect.value = 'MALE';
+                } else if (regFor === 'DAUGHTER' || regFor === 'SISTER') {
+                    genderSelect.value = 'FEMALE';
+                }
+            }
+        }
+
+        async function apiRequest(url, method, body) {
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body ? JSON.stringify(body) : null
+                });
+                
+                const data = await response.json();
+                return { ok: response.ok, status: response.status, data };
+            } catch (err) {
+                return { ok: false, error: err.message };
+            }
+        }
+
+        async function sendOTP(prefix) {
+            const phoneField = document.getElementById('phone-input');
+            const phone = phoneField.value.trim();
+            if (!phone) {
+                showMessage('ERROR', 'Please enter a mobile number.');
+                return;
+            }
+            
+            const res = await apiRequest('/api/send-mobile-otp', 'POST', { phone });
+            if (res.ok) {
+                showMessage('SUCCESS', 'OTP sent successfully. Check your Django terminal console!');
+                document.getElementById(`${prefix}-otp-group`).style.display = 'block';
+            } else {
+                showMessage('ERROR', res.data.message || 'Failed to send OTP.');
+            }
+        }
+
+        async function verifyOTP(prefix) {
+            const phoneField = document.getElementById('phone-input');
+            const otpField = document.getElementById('otp-input');
+            const phone = phoneField.value.trim();
+            const otp = otpField.value.trim();
+            
+            if (!otp) {
+                showMessage('ERROR', 'Please enter the OTP.');
+                return;
+            }
+            
+            const res = await apiRequest('/api/verify-mobile-otp', 'POST', { phone, otp });
+            if (res.ok) {
+                showMessage('SUCCESS', 'Phone verified successfully!');
+                regVerifiedPhone = phone;
+                document.getElementById('reg-phone-status').innerText = 'Verified';
+                document.getElementById('reg-phone-status').style.color = 'var(--success)';
+            } else {
+                showMessage('ERROR', res.data.message || 'Invalid OTP.');
+            }
+        }
+
+        async function register() {
+            const acceptTerms = document.getElementById('reg-terms').checked;
+            if (!acceptTerms) {
+                showMessage('ERROR', 'Please accept the Terms & Conditions.');
+                return;
+            }
+
+            const phone = document.getElementById('phone-input').value.trim();
+            if (!regVerifiedPhone || regVerifiedPhone !== phone) {
+                showMessage('ERROR', 'Please verify your phone number using OTP first.');
+                return;
+            }
+
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+            if (!password || !password.trim()) {
+                showMessage('ERROR', 'Password is required.');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('ERROR', 'Password must be at least 8 characters long.');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('ERROR', 'Passwords do not match.');
+                return;
+            }
+
+            const payload = {
+                register_for: document.getElementById('reg-for').value,
+                first_name: document.getElementById('reg-first-name').value.trim(),
+                last_name: document.getElementById('reg-last-name').value.trim() || null,
+                gender: document.getElementById('reg-gender').value,
+                date_of_birth: document.getElementById('reg-dob').value,
+                email: document.getElementById('reg-email').value.trim() || null,
+                phone: phone,
+                password: password,
+                confirm_password: confirmPassword,
+                accept_terms: acceptTerms
+            };
+
+            const res = await apiRequest('/api/register', 'POST', payload);
+            if (res.ok) {
+                console.log("SUCCESSFULLY REGISTERED");
+                console.log("Access Token:", res.data.data.access_token);
+                console.log("Refresh Token:", res.data.data.refresh_token);
+                showMessage('SUCCESS', 'Registration Successful! Redirecting to login page...');
+                setTimeout(() => {
+                    window.location.href = '/login/';
+                }, 2000);
+            } else {
+                let errorMsg = 'Registration Failed.';
+                if (res.data && res.data.message) {
+                    errorMsg = res.data.message;
+                } else if (res.data && res.data.detail && Array.isArray(res.data.detail)) {
+                    errorMsg = res.data.detail.map(d => d.msg.replace('Value error, ', '')).join('\n');
+                }
+                showMessage('ERROR', errorMsg);
+            }
+        }
+
+        async function handleCredentialResponse(response) {
+            const token = response.credential;
+            console.log('Google credential response received:', response);
+            
+            const gender = document.getElementById('reg-gender') ? document.getElementById('reg-gender').value : null;
+            const regFor = document.getElementById('reg-for') ? document.getElementById('reg-for').value : null;
+            const dob = document.getElementById('reg-dob') ? document.getElementById('reg-dob').value : null;
+            const phone = document.getElementById('phone-input') ? document.getElementById('phone-input').value.trim() : null;
+
+            const payload = {
+                id_token: token,
+                action: 'register',
+                gender: gender || null,
+                register_for: regFor || null,
+                date_of_birth: dob ? dob : null,
+                phone: phone ? phone : null
+            };
+
+            const res = await apiRequest('/api/google-login', 'POST', payload);
+
+            if (res.ok) {
+                if (res.data.is_new_user) {
+                    showMessage('SUCCESS', 'Google Account Registered successfully! Redirecting to login page...');
+                    setTimeout(() => {
+                        window.location.href = '/login/';
+                    }, 2000);
+                } else {
+                    console.log("SUCCESSFULLY LOGGED IN WITH GOOGLE");
+                    console.log("Access Token:", res.data.data.access_token);
+                    console.log("Refresh Token:", res.data.data.refresh_token);
+                    showMessage('SUCCESS', 'Google account already registered! Redirecting to login...');
+                    setTimeout(() => {
+                        window.location.href = '/login/';
+                    }, 2000);
+                }
+            } else {
+                let errorMsg = 'Google Authentication Failed.';
+                if (res.data && res.data.message) {
+                    errorMsg = res.data.message;
+                }
+                showMessage('ERROR', errorMsg);
+            }
+        }
+    </script>
+</body>
+</html>

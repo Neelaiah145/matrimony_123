@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f6f7f9;
+            --bg-secondary: #ffffff;
+            --bg-accent: #eef0f4;
+            --bg-hover: #f2f4f8;
+            --border-color: #e6e8ee;
+            --text-main: #1c2129;
+            --text-muted: #8a90a0;
+            --accent-color: #4a5df9;
+            --accent-hover: #3c4de0;
+            --accent-soft: #eef0ff;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --sent-bubble: #4a5df9;
+            --sent-text: #ffffff;
+            --received-bubble: #f1f2f6;
+            --received-text: #1c2129;
+            --shadow-sm: 0 1px 2px rgba(20, 24, 38, 0.04);
+            --shadow-md: 0 4px 16px rgba(20, 24, 38, 0.06);
+            --shadow-lg: 0 12px 32px rgba(20, 24, 38, 0.14);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+
+            /* Sidebar (light colored) palette */
+            --side-bg: #eef0fb;
+            --side-bg-elevated: #e4e8fa;
+            --side-border: #dde1f5;
+            --side-text: #2b2f4a;
+            --side-text-muted: #767ba0;
+            --side-hover: #ffffff;
+            --side-active: #ffffff;
+            --side-accent: #4a5df9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            padding: 16px;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        /* ---------- Sidebar (light colored panel) ---------- */
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            background-color: var(--side-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: var(--side-text);
+            box-shadow: 1px 0 0 var(--side-border);
+        }
+
+        .sidebar-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--side-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--side-text);
+        }
+
+        .room-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .room-list::-webkit-scrollbar,
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .room-list::-webkit-scrollbar-thumb,
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--side-border);
+            border-radius: 10px;
+        }
+        .room-list::-webkit-scrollbar-track,
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .room-item {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 6px 4px;
+            background-color: var(--side-bg-elevated);
+            border: 1px solid var(--side-border);
+        }
+
+        .room-item:hover {
+            background-color: var(--side-bg-elevated);
+        }
+
+        .room-item.active {
+            background-color: var(--side-bg-elevated);
+            border-color: var(--side-accent);
+        }
+
+        .room-item strong {
+            color: var(--side-text) !important;
+        }
+
+        .room-item > div > div:last-child {
+            color: var(--side-text-muted) !important;
+        }
+
+        /* ---------- Main chat panel ---------- */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-secondary);
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .chat-header {
+            padding: 18px 28px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        #call-buttons-container button {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        #call-buttons-container button:hover {
+            background-color: var(--accent-soft);
+            color: var(--accent-color) !important;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 28px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background-image: radial-gradient(var(--border-color) 0.5px, transparent 0.5px);
+            background-size: 18px 18px;
+            background-position: -9px -9px;
+        }
+
+        .msg-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 62%;
+            position: relative;
+        }
+
+        .msg-wrapper.sent {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg-wrapper.received {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .msg-bubble {
+            padding: 11px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.92rem;
+            line-height: 1.45;
+            word-wrap: break-word;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .msg-wrapper.sent .msg-bubble {
+            background-color: var(--sent-bubble);
+            color: var(--sent-text);
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-wrapper.received .msg-bubble {
+            background-color: var(--received-bubble);
+            color: var(--received-text);
+            border-bottom-left-radius: 4px;
+            box-shadow: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .msg-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            padding: 0 4px;
+        }
+
+        .msg-attachment-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .audio-player {
+            width: 250px;
+            margin-top: 6px;
+        }
+
+        /* ---------- Attachment preview bar ---------- */
+        .attachment-preview-bar {
+            display: none;
+            padding: 12px 28px;
+            background-color: var(--accent-soft);
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        /* ---------- Input area ---------- */
+        .chat-input-area {
+            padding: 16px 24px;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .attach-btn-label, .mic-btn, #emoji-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.15s ease, transform 0.15s ease;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .attach-btn-label:hover, .mic-btn:hover, #emoji-btn:hover {
+            color: var(--accent-color);
+            background-color: var(--accent-soft);
+        }
+
+        .mic-btn.recording {
+            color: #ffffff !important;
+            background-color: var(--danger-color);
+            animation: pulse 1.4s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .text-input-field {
+            flex: 1;
+            background-color: var(--bg-accent);
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            padding: 11px 16px;
+            color: var(--text-main);
+            font-size: 0.92rem;
+            outline: none;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .text-input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .text-input-field:focus {
+            border-color: var(--accent-color);
+            background-color: var(--bg-secondary);
+        }
+
+        .send-message-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+            flex-shrink: 0;
+        }
+
+        .send-message-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .send-message-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ---------- Lightbox ---------- */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 20, 30, 0.82);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lightbox-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px var(--side-bg-elevated);
+        }
+
+        .msg-bubble-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .msg-actions-trigger {
+            opacity: 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: opacity 0.15s ease, color 0.15s ease;
+            font-size: 0.85rem;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .msg-bubble-container:hover .msg-actions-trigger {
+            opacity: 1;
+        }
+
+        .msg-actions-trigger:hover {
+            color: var(--accent-color);
+        }
+
+        .msg-dropdown-menu {
+            display: none;
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            min-width: 150px;
+            right: 0;
+            top: 100%;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .msg-dropdown-menu button {
+            width: 100%;
+            padding: 9px 10px;
+            border: none;
+            background: none;
+            color: var(--text-main);
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.83rem;
+            border-radius: 6px;
+            transition: background 0.12s ease;
+        }
+
+        .msg-dropdown-menu button:hover {
+            background: var(--bg-hover);
+        }
+
+        /* ---------- Emoji picker ---------- */
+        #emoji-picker {
+            border-radius: var(--radius-md) !important;
+            box-shadow: var(--shadow-lg) !important;
+        }
+
+        #emoji-picker span {
+            border-radius: 8px;
+            padding: 4px;
+            transition: background 0.12s ease, transform 0.1s ease;
+        }
+
+        #emoji-picker span:hover {
+            background-color: var(--bg-hover);
+            transform: scale(1.15);
+        }
+
+        /* ---------- Call overlay ---------- */
+        #call-overlay {
+            background: rgba(17, 20, 30, 0.92) !important;
+            backdrop-filter: blur(6px);
+        }
+
+        #call-accept-btn, #call-overlay button[onclick="endActiveCall()"] {
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.12s ease;
+        }
+
+        #call-accept-btn:hover, #call-overlay button[onclick="endActiveCall()"]:hover {
+            transform: scale(1.06);
+        }
+
+        /* ---------- Misc scrollable polish ---------- */
+        ::selection {
+            background-color: var(--accent-soft);
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Conversations</h3>
+            </div>
+            <div class="room-list" id="chat-rooms-container">
+                <!-- Chat room items populated dynamically -->
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <div>
+                    <h4 id="active-chat-title">Select a room</h4>
+                    <div id="active-chat-status" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;"></div>
+                </div>
+                <div id="call-buttons-container" style="display: none; gap: 10px; align-items: center;">
+                    <button onclick="startCall('VOICE')" style="background:none; border:none; color:var(--text-main); font-size:1.05rem; cursor:pointer;" title="Voice Call">
+                        <i class="fa-solid fa-phone"></i>
+                    </button>
+                    <button onclick="startCall('VIDEO')" style="background:none; border:none; color:var(--text-main); font-size:1.05rem; cursor:pointer;" title="Video Call">
+                        <i class="fa-solid fa-video"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="messages-container" id="chat-messages-container">
+                <!-- Messages rendered dynamically -->
+            </div>
+
+            <!-- Attachment Preview Bar -->
+            <div class="attachment-preview-bar" id="attachment-preview-bar">
+                <span>Selected file: <strong id="attachment-preview-filename"></strong></span>
+                <button onclick="clearSelectedFile()" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Input Controls -->
+            <div class="chat-input-area" style="position: relative;">
+                <input type="file" id="chat-file-input" style="display: none;" onchange="handleFileSelection()">
+                <label for="chat-file-input" class="attach-btn-label" title="Attach File">
+                    <i class="fa-solid fa-paperclip"></i>
+                </label>
+
+                <button type="button" id="mic-btn" class="mic-btn" onclick="toggleVoiceRecording()" title="Record Voice">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <!-- Emoji Toggle Button -->
+                <button type="button" id="emoji-btn" onclick="toggleEmojiPicker()" title="Emojis">
+                    <i class="fa-regular fa-face-smile"></i>
+                </button>
+
+                <input type="text" id="chat-text-input" class="text-input-field" placeholder="Type a message..." onkeydown="handleInputKeydown(event)">
+                <button class="send-message-btn" onclick="sendMessage()">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+
+                <!-- Emoji Picker -->
+                <div id="emoji-picker" style="display: none; position: absolute; bottom: 70px; right: 20px; width: 280px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.6); z-index: 1000;">
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; font-size: 1.3rem; cursor: pointer; text-align: center; user-select: none;">
+                        <span onclick="insertEmoji('😀')">😀</span>
+                        <span onclick="insertEmoji('😂')">😂</span>
+                        <span onclick="insertEmoji('😍')">😍</span>
+                        <span onclick="insertEmoji('😘')">😘</span>
+                        <span onclick="insertEmoji('👍')">👍</span>
+                        <span onclick="insertEmoji('❤️')">❤️</span>
+                        <span onclick="insertEmoji('🙏')">🙏</span>
+                        <span onclick="insertEmoji('🔥')">🔥</span>
+                        <span onclick="insertEmoji('👏')">👏</span>
+                        <span onclick="insertEmoji('🎉')">🎉</span>
+                        <span onclick="insertEmoji('😎')">😎</span>
+                        <span onclick="insertEmoji('😢')">😢</span>
+                        <span onclick="insertEmoji('😠')">😠</span>
+                        <span onclick="insertEmoji('😮')">😮</span>
+                        <span onclick="insertEmoji('💩')">💩</span>
+                        <span onclick="insertEmoji('✨')">✨</span>
+                        <span onclick="insertEmoji('💯')">💯</span>
+                        <span onclick="insertEmoji('🚀')">🚀</span>
+                        <span onclick="insertEmoji('🎂')">🎂</span>
+                        <span onclick="insertEmoji('🎁')">🎁</span>
+                        <span onclick="insertEmoji('💡')">💡</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox-modal" id="image-lightbox" onclick="this.style.display='none'">
+        <img id="lightbox-img" src="" alt="Preview">
+    </div>
+
+    <!-- Calling Overlay Modal -->
+    <div id="call-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; gap: 24px; color: white;">
+        <div style="font-size: 2.5rem; color: var(--accent-color); animation: pulse 1.5s infinite;">
+            <i class="fa-solid fa-phone-volume"></i>
+        </div>
+        <h2 id="call-status-text">Calling...</h2>
+        <div id="call-user-name" style="font-size: 1.6rem; font-weight: bold; margin-bottom: 12px;">User Name</div>
+        
+        <!-- Video Stream Container -->
+        <div id="video-container" style="display: none; gap: 16px; width: 90%; max-width: 750px; justify-content: center; position: relative;">
+            <video id="remote-video" autoplay playsinline style="width: 100%; background: #000; border-radius: 12px; max-height: 400px; object-fit: cover;"></video>
+            <video id="local-video" autoplay playsinline muted style="width: 130px; height: 95px; background: #222; border: 2px solid white; border-radius: 8px; position: absolute; bottom: 12px; right: 12px; object-fit: cover;"></video>
+        </div>
+
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <button id="call-accept-btn" onclick="acceptIncomingCall()" style="display: none; background-color: #22c55e; border: none; border-radius: 50%; width: 55px; height: 55px; color: white; font-size: 1.4rem; cursor: pointer; justify-content: center; align-items: center;">
+                <i class="fa-solid fa-phone"></i>
+            </button>
+            <button onclick="endActiveCall()" style="background-color: #ef4444; border: none; border-radius: 50%; width: 55px; height: 55px; color: white; font-size: 1.4rem; cursor: pointer; display: flex; justify-content: center; align-items: center;">
+                <i class="fa-solid fa-phone-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentRoomId = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // Calling state variables
+        let localStream = null;
+        let peerConnection = null;
+        let activeCallId = null;
+        let callCheckInterval = null;
+        let signalInterval = null;
+        let isCaller = false;
+        let callType = null; // 'VOICE' or 'VIDEO'
+
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        // Helper to extract Django CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Robust Fetch Wrapper to handle JWT token expiration by falling back to session cookies
+        async function authenticatedFetch(url, options = {}) {
+            if (!options.headers) options.headers = {};
+            
+            // Add cache buster to GET requests to prevent browser caching of APIs
+            if (!options.method || options.method.toUpperCase() === 'GET') {
+                const separator = url.includes('?') ? '&' : '?';
+                url = `${url}${separator}_t=${Date.now()}`;
+            }
+
+            // Add session credentials
+            options.credentials = 'same-origin';
+            
+            // Try fetching with JWT token if available
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                options.headers['Authorization'] = 'Bearer ' + token;
+            }
+            if (!options.headers['X-CSRFToken']) {
+                options.headers['X-CSRFToken'] = getCookie('csrftoken');
+            }
+
+            let response = await fetch(url, options);
+            
+            // If unauthorized, clear the token and retry using the Django session cookie fallback
+            if (response.status === 401 && token) {
+                console.warn("JWT token expired/invalid. Retrying with session cookie...");
+                localStorage.removeItem('access_token');
+                delete options.headers['Authorization'];
+                response = await fetch(url, options);
+            }
+            
+            return response;
+        }
+
+        // Fetch User Chat Rooms using Session Auth
+        async function fetchRooms() {
+            try {
+                const response = await authenticatedFetch('/api/chat/conversations', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const rooms = Array.isArray(data) ? data : (data.results || data.data || []);
+                renderRooms(rooms);
+            } catch (err) {
+                console.error("Error fetching rooms:", err);
+            }
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById('chat-rooms-container');
+            container.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; color: var(--side-text-muted); text-align: center;">No active chats</div>';
+                return;
+            }
+
+            const palette = [
+                { bg: '#ffe3ec', text: '#c23b6b', border: '#f7b8cf' },
+                { bg: '#e3f3ff', text: '#2470b8', border: '#b8ddf7' },
+                { bg: '#eaffe6', text: '#2f8f4e', border: '#bdeec4' },
+                { bg: '#fff3d6', text: '#b5790a', border: '#f5dda0' },
+                { bg: '#f1e6ff', text: '#7440c9', border: '#d9c2f7' },
+                { bg: '#e6fbf8', text: '#128a7e', border: '#b6ebe4' }
+            ];
+
+            rooms.forEach((room, index) => {
+                const div = document.createElement('div');
+                div.className = `room-item ${room.id === currentRoomId ? 'active' : ''}`;
+                
+                const participantName = room.participant_name || `Chat #${room.id}`;
+                div.onclick = () => selectRoom(room.id, participantName, room.is_online);
+
+                const colors = palette[index % palette.length];
+                
+                const photoHtml = room.participant_photo 
+                    ? `<img src="${room.participant_photo}" alt="${participantName}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px ${colors.border};">`
+                    : `<div style="width: 42px; height: 42px; border-radius: 50%; background-color: ${colors.bg}; border: 1px solid ${colors.border}; display: flex; align-items: center; justify-content: center; font-weight: 600; color: ${colors.text};">${(participantName || 'U').charAt(0)}</div>`;
+                
+                const lastMsg = room.last_message || 'No messages yet';
+                const unreadBadge = room.unread_count > 0 
+                    ? `<span style="background-color: ${colors.text}; color: white; border-radius: 50%; min-width:20px; height:20px; padding: 0 5px; font-size: 0.7rem; font-weight: 600; display:flex; align-items:center; justify-content:center;">${room.unread_count}</span>`
+                    : '';
+
+                const onlineIndicator = room.is_online 
+                    ? `<span class="online-dot" style="margin-left: 6px;" title="Online"></span>` 
+                    : '';
+
+                div.innerHTML = `
+                    ${photoHtml}
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <strong style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: flex; align-items: center; font-size: 0.9rem; font-weight: 600;">${participantName} ${onlineIndicator}</strong>
+                            <span style="font-size: 0.68rem; color: var(--side-text-muted);">${room.last_message_time ? formatTime(room.last_message_time) : ''}</span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--side-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top:2px;">
+                            ${lastMsg}
+                        </div>
+                    </div>
+                    ${unreadBadge}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        let shouldScrollToBottom = true;
+        let lastMessageCount = 0;
+
+        async function selectRoom(roomId, roomName, isOnline) {
+            currentRoomId = roomId;
+            shouldScrollToBottom = true;
+            lastMessageCount = 0;
+            document.getElementById('active-chat-title').innerText = roomName;
+            document.getElementById('active-chat-status').innerText = isOnline ? "Online" : "Offline";
+            document.getElementById('call-buttons-container').style.display = 'flex';
+            
+            // Mark messages as seen
+            try {
+                await authenticatedFetch(`/api/chat/conversations/${roomId}/seen`, {
+                    method: 'PUT'
+                });
+            } catch (err) {
+                console.error("Error marking messages as seen:", err);
+            }
+            
+            fetchMessages(roomId);
+            fetchRooms(); // refresh sidebar counts
+        }
+
+        // Fetch Messages for Selected Room
+        async function fetchMessages(roomId) {
+            try {
+                const response = await authenticatedFetch(`/api/chat/conversations/${roomId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const messages = Array.isArray(data) ? data : (data.results || data.data || []);
+                renderMessages(messages);
+
+                // If there are unseen incoming messages while we are actively looking at the room, mark them read
+                const hasUnseenIncoming = messages.some(msg => !(msg.is_me || msg.is_sender) && !msg.seen && !msg.is_seen);
+                if (hasUnseenIncoming) {
+                    await authenticatedFetch(`/api/chat/conversations/${roomId}/seen`, {
+                        method: 'PUT'
+                    });
+                    fetchRooms(); // Refresh the sidebar badge count immediately
+                }
+            } catch (err) {
+                console.error("Error fetching messages:", err);
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('chat-messages-container');
+            
+            // Check if user is scrolled near the bottom (within 250px)
+            const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 250;
+            
+            const hasNewMessages = messages.length > lastMessageCount;
+            lastMessageCount = messages.length;
+
+            container.innerHTML = '';
+
+            messages.forEach(msg => {
+                const isSent = msg.is_me || msg.is_sender;
+                const wrapper = document.createElement('div');
+                wrapper.className = `msg-wrapper ${isSent ? 'sent' : 'received'}`;
+
+                let contentHtml = '';
+                const type = msg.type || msg.message_type;
+                const attachment = msg.attachments && msg.attachments.length > 0 ? msg.attachments[0] : null;
+                const fileUrl = attachment ? attachment.file_url : null;
+
+                if (type === 'IMAGE' && fileUrl) {
+                    contentHtml = `<img src="${fileUrl}" class="msg-attachment-img" onclick="openLightbox('${fileUrl}')"/>`;
+                } else if (type === 'VOICE' && fileUrl) {
+                    contentHtml = `<audio controls class="audio-player"><source src="${fileUrl}" type="audio/webm"></audio>`;
+                } else if (type === 'VIDEO' && fileUrl) {
+                    contentHtml = `<video controls class="msg-attachment-img" style="max-width:100%; max-height:250px;"><source src="${fileUrl}" type="${attachment.mime_type || 'video/mp4'}"></video>`;
+                } else if (type === 'DOCUMENT' && fileUrl) {
+                    contentHtml = `<div style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-file-pdf" style="font-size:1.5rem;"></i><a href="${fileUrl}" target="_blank" style="color:var(--accent-color); text-decoration:underline;">${attachment.file_name || 'Download Document'}</a></div>`;
+                } else {
+                    contentHtml = `<div>${msg.message || ''}</div>`;
+                }
+
+                // WhatsApp double / single ticks
+                let ticksHtml = '';
+                if (isSent && !msg.is_deleted) {
+                    if (msg.seen || msg.is_seen) {
+                        ticksHtml = `<i class="fa-solid fa-check-double" style="color: var(--accent-color); margin-left: 4px; font-size: 0.85rem;"></i>`; // Blue double tick
+                    } else if (msg.is_delivered) {
+                        ticksHtml = `<i class="fa-solid fa-check-double" style="color: var(--text-muted); margin-left: 4px; font-size: 0.85rem;"></i>`; // Gray double tick
+                    } else {
+                        ticksHtml = `<i class="fa-solid fa-check" style="color: var(--text-muted); margin-left: 4px; font-size: 0.85rem;"></i>`; // Single tick
+                    }
+                }
+
+                // Dropdown menu for actions
+                let dropdownHtml = '';
+                if (!msg.is_deleted) {
+                    let deleteEveryoneOption = isSent ? `<button onclick="deleteMessage(${msg.id}, true)">Delete for everyone</button>` : '';
+                    dropdownHtml = `
+                        <div class="msg-actions-trigger" onclick="toggleMessageMenu(event, ${msg.id})">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div id="msg-menu-${msg.id}" class="msg-dropdown-menu">
+                            <button onclick="deleteMessage(${msg.id}, false)">Delete for me</button>
+                            ${deleteEveryoneOption}
+                        </div>
+                    `;
+                }
+
+                wrapper.innerHTML = `
+                    <div class="msg-bubble-container">
+                        <div class="msg-bubble">${contentHtml}</div>
+                        ${dropdownHtml}
+                    </div>
+                    <div class="msg-meta" style="display:flex; align-items:center; gap:4px; justify-content:flex-end;">
+                        <span>${formatTime(msg.created_at || msg.timestamp)}</span>
+                        ${ticksHtml}
+                    </div>
+                `;
+                container.appendChild(wrapper);
+            });
+
+            const lastMsg = messages[messages.length - 1];
+            const lastMsgIsMe = lastMsg ? (lastMsg.is_me || lastMsg.is_sender) : false;
+
+            if (shouldScrollToBottom || (hasNewMessages && (isNearBottom || lastMsgIsMe))) {
+                container.scrollTop = container.scrollHeight;
+                shouldScrollToBottom = false;
+            }
+        }
+
+        // Send Text or Attachment Message
+        async function sendMessage() {
+            if (!currentRoomId) return;
+            shouldScrollToBottom = true;
+
+            const textInput = document.getElementById('chat-text-input');
+            const fileInput = document.getElementById('chat-file-input');
+            const file = fileInput.files[0];
+            const text = textInput.value.trim();
+
+            if (!text && !file) return;
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('room_id', currentRoomId);
+
+                let endpoint = '/api/chat/send-document';
+                if (file.type.startsWith('image/')) {
+                    endpoint = '/api/chat/send-image';
+                    formData.append('image', file);
+                    if (text) formData.append('caption', text);
+                } else if (file.type.startsWith('video/')) {
+                    endpoint = '/api/chat/send-video';
+                    formData.append('video', file);
+                    if (text) formData.append('caption', text);
+                } else if (file.type.startsWith('audio/')) {
+                    endpoint = '/api/chat/send-voice';
+                    formData.append('voice', file);
+                } else {
+                    formData.append('document', file);
+                    if (text) formData.append('caption', text);
+                }
+
+                try {
+                    const response = await authenticatedFetch(endpoint, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        textInput.value = '';
+                        clearSelectedFile();
+                        fetchMessages(currentRoomId);
+                        fetchRooms();
+                    } else {
+                        const errData = await response.json();
+                        alert("Error sending attachment: " + (errData.message || 'Unknown error'));
+                    }
+                } catch (err) {
+                    console.error("Error sending attachment:", err);
+                }
+            } else {
+                try {
+                    const response = await authenticatedFetch('/api/chat/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            room_id: currentRoomId,
+                            message: text
+                        })
+                    });
+
+                    if (response.ok) {
+                        textInput.value = '';
+                        fetchMessages(currentRoomId);
+                        fetchRooms();
+                    } else {
+                        const errData = await response.json();
+                        alert("Error sending message: " + (errData.message || 'Unknown error'));
+                    }
+                } catch (err) {
+                    console.error("Error sending message:", err);
+                }
+            }
+        }
+
+        // Record Voice Messages
+        async function toggleVoiceRecording() {
+            const micBtn = document.getElementById('mic-btn');
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioFile = new File([audioBlob], "voice_note.webm", { type: "audio/webm" });
+                        
+                        const formData = new FormData();
+                        formData.append('room_id', currentRoomId);
+                        formData.append('voice', audioFile);
+
+                        try {
+                            const response = await authenticatedFetch('/api/chat/send-voice', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            if (response.ok) {
+                                fetchMessages(currentRoomId);
+                                fetchRooms();
+                            }
+                        } catch (err) {
+                            console.error("Error sending voice note:", err);
+                        }
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micBtn.classList.add('recording');
+                } catch (err) {
+                    alert("Microphone access denied or not supported.");
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                micBtn.classList.remove('recording');
+            }
+        }
+
+        // Emoji Picker Handlers
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emoji-picker');
+            picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function insertEmoji(emoji) {
+            const input = document.getElementById('chat-text-input');
+            input.value += emoji;
+            input.focus();
+            toggleEmojiPicker();
+        }
+
+        // WebRTC calling functions
+        async function startCall(type) {
+            if (!currentRoomId) return;
+            callType = type;
+            isCaller = true;
+
+            const name = document.getElementById('active-chat-title').innerText;
+            document.getElementById('call-user-name').innerText = name;
+            document.getElementById('call-status-text').innerText = "Calling...";
+            document.getElementById('call-overlay').style.display = 'flex';
+            document.getElementById('call-accept-btn').style.display = 'none';
+
+            // Fetch stream and setup local display
+            try {
+                const constraints = {
+                    audio: true,
+                    video: type === 'VIDEO'
+                };
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                if (type === 'VIDEO') {
+                    document.getElementById('video-container').style.display = 'flex';
+                    document.getElementById('local-video').srcObject = localStream;
+                } else {
+                    document.getElementById('video-container').style.display = 'none';
+                }
+            } catch (err) {
+                console.warn("Could not capture media tracks:", err);
+                document.getElementById('call-status-text').innerText = "Calling (Simulated Mode)...";
+            }
+
+            // Initiate call endpoint
+            try {
+                const response = await authenticatedFetch('/api/chat/call/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        room_id: currentRoomId,
+                        call_type: type
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    activeCallId = data.call_id;
+                    setupPeerConnection();
+                    
+                    // Create Offer
+                    if (peerConnection && localStream) {
+                        const offer = await peerConnection.createOffer();
+                        await peerConnection.setLocalDescription(offer);
+                        await sendSignal({ sdp_offer: offer.sdp });
+                    }
+                    
+                    startNegotiationPolling();
+                } else {
+                    alert("Could not initiate call: " + data.message);
+                    cleanupCall();
+                }
+            } catch (err) {
+                console.error("Calling initiation error:", err);
+                cleanupCall();
+            }
+        }
+
+        async function checkIncomingCalls() {
+            if (activeCallId) return; // already in active call
+
+            try {
+                const response = await authenticatedFetch('/api/chat/call/active', {
+                    method: 'GET'
+                });
+                const data = await response.json();
+                
+                if (data.active && !data.is_caller) {
+                    if (data.status === 'RINGING') {
+                        activeCallId = data.call_id;
+                        isCaller = false;
+                        callType = data.call_type;
+
+                        document.getElementById('call-user-name').innerText = data.caller_name;
+                        document.getElementById('call-status-text').innerText = `Incoming ${callType} Call...`;
+                        document.getElementById('call-overlay').style.display = 'flex';
+                        document.getElementById('call-accept-btn').style.display = 'flex';
+                        
+                        if (callType === 'VIDEO') {
+                            document.getElementById('video-container').style.display = 'flex';
+                        } else {
+                            document.getElementById('video-container').style.display = 'none';
+                        }
+                        
+                        startNegotiationPolling();
+                    }
+                }
+            } catch (err) {
+                console.error("Error checking incoming calls:", err);
+            }
+        }
+
+        async function acceptIncomingCall() {
+            document.getElementById('call-status-text').innerText = "Connecting...";
+            document.getElementById('call-accept-btn').style.display = 'none';
+
+            try {
+                const constraints = {
+                    audio: true,
+                    video: callType === 'VIDEO'
+                };
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                if (callType === 'VIDEO') {
+                    document.getElementById('local-video').srcObject = localStream;
+                }
+            } catch (err) {
+                console.warn("Could not capture media tracks for incoming call:", err);
+            }
+
+            try {
+                await authenticatedFetch(`/api/chat/call/${activeCallId}/respond`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'ACCEPTED' })
+                });
+
+                setupPeerConnection();
+            } catch (err) {
+                console.error("Accepting call response error:", err);
+                cleanupCall();
+            }
+        }
+
+        function setupPeerConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+            }
+
+            peerConnection.ontrack = (event) => {
+                if (callType === 'VIDEO') {
+                    document.getElementById('remote-video').srcObject = event.streams[0];
+                }
+            };
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    sendSignal(isCaller 
+                        ? { caller_candidates: JSON.stringify([event.candidate]) }
+                        : { receiver_candidates: JSON.stringify([event.candidate]) }
+                    );
+                }
+            };
+        }
+
+        async function sendSignal(signalData) {
+            if (!activeCallId) return;
+            try {
+                await authenticatedFetch(`/api/chat/call/${activeCallId}/signal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(signalData)
+                });
+            } catch (err) {
+                console.error("Failed sending WebRTC signal:", err);
+            }
+        }
+
+        function startNegotiationPolling() {
+            if (signalInterval) clearInterval(signalInterval);
+            signalInterval = setInterval(async () => {
+                if (!activeCallId) return;
+
+                try {
+                    const response = await authenticatedFetch(`/api/chat/call/${activeCallId}/signal`, {
+                        method: 'GET'
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        cleanupCall();
+                        return;
+                    }
+
+                    if (data.status === 'ENDED' || data.status === 'REJECTED') {
+                        cleanupCall();
+                        return;
+                    }
+
+                    if (data.status === 'ACCEPTED') {
+                        document.getElementById('call-status-text').innerText = "Connected";
+                    }
+
+                    // Exchange offers and answers
+                    if (isCaller) {
+                        if (data.sdp_answer && peerConnection && !peerConnection.remoteDescription) {
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription({
+                                type: 'answer',
+                                sdp: data.sdp_answer
+                            }));
+                        }
+                        if (data.receiver_candidates) {
+                            const candidates = JSON.parse(data.receiver_candidates);
+                            candidates.forEach(c => peerConnection.addIceCandidate(new RTCIceCandidate(c)).catch(e => {}));
+                        }
+                    } else {
+                        // Receiver
+                        if (data.sdp_offer && peerConnection && !peerConnection.remoteDescription) {
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription({
+                                type: 'offer',
+                                sdp: data.sdp_offer
+                            }));
+                            const answer = await peerConnection.createAnswer();
+                            await peerConnection.setLocalDescription(answer);
+                            await sendSignal({ sdp_answer: answer.sdp });
+                        }
+                        if (data.caller_candidates) {
+                            const candidates = JSON.parse(data.caller_candidates);
+                            candidates.forEach(c => peerConnection.addIceCandidate(new RTCIceCandidate(c)).catch(e => {}));
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error polling WebRTC negotiation:", err);
+                }
+            }, 2000);
+        }
+
+        async function endActiveCall() {
+            if (!activeCallId) return;
+            try {
+                await authenticatedFetch(`/api/chat/call/${activeCallId}/end`, {
+                    method: 'POST'
+                });
+            } catch (err) {
+                console.error("Error ending active call:", err);
+            }
+            cleanupCall();
+        }
+
+        function cleanupCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (signalInterval) {
+                clearInterval(signalInterval);
+                signalInterval = null;
+            }
+            activeCallId = null;
+            document.getElementById('call-overlay').style.display = 'none';
+            document.getElementById('local-video').srcObject = null;
+            document.getElementById('remote-video').srcObject = null;
+        }
+
+        // File Selection Handlers
+        function handleFileSelection() {
+            const fileInput = document.getElementById('chat-file-input');
+            const bar = document.getElementById('attachment-preview-bar');
+            const filenameSpan = document.getElementById('attachment-preview-filename');
+
+            if (fileInput.files && fileInput.files[0]) {
+                filenameSpan.innerText = fileInput.files[0].name;
+                bar.style.display = 'flex';
+            }
+        }
+
+        function clearSelectedFile() {
+            const fileInput = document.getElementById('chat-file-input');
+            const bar = document.getElementById('attachment-preview-bar');
+            fileInput.value = '';
+            bar.style.display = 'none';
+        }
+
+        function handleInputKeydown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function openLightbox(url) {
+            const lightbox = document.getElementById('image-lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = url;
+            lightbox.style.display = 'flex';
+        }
+
+        function toggleMessageMenu(event, msgId) {
+            event.stopPropagation();
+            document.querySelectorAll('.msg-dropdown-menu').forEach(menu => {
+                if (menu.id !== `msg-menu-${msgId}`) {
+                    menu.style.display = 'none';
+                }
+            });
+            const menu = document.getElementById(`msg-menu-${msgId}`);
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        async function deleteMessage(msgId, forEveryone) {
+            const endpoint = forEveryone ? `/api/chat/message/${msgId}/everyone` : `/api/chat/message/${msgId}`;
+            try {
+                const response = await authenticatedFetch(endpoint, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    fetchMessages(currentRoomId);
+                    fetchRooms();
+                } else {
+                    alert("Failed to delete message");
+                }
+            } catch (err) {
+                console.error("Error deleting message:", err);
+            }
+        }
+
+        async function sendHeartbeat() {
+            try {
+                await authenticatedFetch('/api/chat/heartbeat', {
+                    method: 'POST'
+                });
+            } catch (err) {
+                console.error("Heartbeat error:", err);
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.msg-dropdown-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+
+        // Load chat rooms and start polling loops on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialRoomId = urlParams.get('room_id');
+            
+            fetchRooms().then(() => {
+                if (initialRoomId) {
+                    const roomIdInt = parseInt(initialRoomId, 10);
+                    selectRoom(roomIdInt, `Chat #${roomIdInt}`, false);
+                }
+            });
+            // Start polling for incoming call sessions
+            callCheckInterval = setInterval(checkIncomingCalls, 3000);
+            // Start polling for new messages in active chat
+            setInterval(() => {
+                if (currentRoomId) {
+                    fetchMessages(currentRoomId);
+                }
+            }, 2000);
+            // Start heartbeat ping
+            sendHeartbeat();
+            setInterval(sendHeartbeat, 8000);
+            // Refresh rooms sidebar periodically to show updated online status
+            setInterval(fetchRooms, 10000);
+        });
+    </script>
+</body>
+</html>

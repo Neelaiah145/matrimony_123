@@ -1,0 +1,132 @@
+{% extends 'admin-dashboard.html' %}
+{% block page_title %}{% if user_obj %}Edit User{% else %}Add New User{% endif %}{% endblock %}
+{% block content %}
+
+<div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+  <div class="card-header bg-white border-bottom p-4">
+    <h5 class="mb-1 fw-bold text-dark">
+      <i class="fa-solid fa-user-gear text-primary me-2"></i>
+      {% if user_obj %}Edit User Profile{% else %}Create User Profile{% endif %}
+    </h5>
+    <p class="text-muted mb-0 small">Enter account details, profile media, and partner preferences.</p>
+  </div>
+  <div class="card-body p-4">
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <h6 class="mt-2 mb-3 text-muted">Account Details</h6>
+    <div class="row">
+      <div class="col-md-6 mb-3"><label class="form-label">First Name</label>{{ user_form.first_name }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Last Name</label>{{ user_form.last_name }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Phone</label>{{ user_form.phone }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Email</label>{{ user_form.email }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Gender</label>{{ user_form.gender }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Date of Birth</label>{{ user_form.date_of_birth }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Role</label>{{ user_form.role }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Register For</label>{{ user_form.register_for }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Auth Provider</label>{{ user_form.auth_provider }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Password</label>{{ user_form.password }}</div>
+
+      <div class="col-md-12 mb-3 d-flex gap-4">
+        <div class="form-check">
+          {{ user_form.is_phone_verified }}
+          <label class="form-check-label">Phone Verified</label>
+        </div>
+        <div class="form-check">
+          {{ user_form.is_email_verified }}
+          <label class="form-check-label">Email Verified</label>
+        </div>
+        <div class="form-check">
+          {{ user_form.is_active }}
+          <label class="form-check-label">Active</label>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+    <h6 class="mb-3 text-muted">Profile Details</h6>
+    <div class="row">
+      <div class="col-md-6 mb-3"><label class="form-label">Profile Photo</label>{{ profile_form.profile_photo }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Video Introduction</label>{{ profile_form.video_introduction }}</div>
+      <div class="col-md-12 mb-3"><label class="form-label">About Me</label>{{ profile_form.about_me }}</div>
+
+      <div class="col-md-4 mb-3"><label class="form-label">Height</label>{{ profile_form.height }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Weight</label>{{ profile_form.weight }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Complexion</label>{{ profile_form.complexion }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Highest Education</label>{{ profile_form.highest_education }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Occupation</label>{{ profile_form.occupation }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Annual Income</label>{{ profile_form.annual_income }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Religion</label>{{ profile_form.religion }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Caste</label>{{ profile_form.caste }}</div>
+
+      <div class="col-md-4 mb-3"><label class="form-label">Rashi</label>{{ profile_form.rashi }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Nakshatra</label>{{ profile_form.nakshatra }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Dosha</label>{{ profile_form.dosha }}</div>
+
+      <div class="col-md-12 mb-3"><label class="form-label">Family Information</label>{{ profile_form.family_information }}</div>
+
+      <div class="col-md-4 mb-3"><label class="form-label">Diet</label>{{ profile_form.diet }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Smoking</label>{{ profile_form.smoking }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Drinking</label>{{ profile_form.drinking }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Languages Known</label>{{ profile_form.languages_known }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Marital Status</label>{{ profile_form.marital_status }}</div>
+
+      <div class="col-md-12 mb-3"><label class="form-label">Hobbies & Interests</label>{{ profile_form.hobbies_interests }}</div>
+      <div class="col-md-12 mb-3"><label class="form-label">Disability Information</label>{{ profile_form.disability_information }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Country</label>{{ profile_form.country }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">State</label>{{ profile_form.state }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">City</label>{{ profile_form.city }}</div>
+    </div>
+
+    <hr class="my-4">
+    <h6 class="mb-3 text-muted">Partner Preferences</h6>
+    <div class="row">
+      <div class="col-md-3 mb-3"><label class="form-label">Minimum Age</label>{{ preference_form.minimum_age }}</div>
+      <div class="col-md-3 mb-3"><label class="form-label">Maximum Age</label>{{ preference_form.maximum_age }}</div>
+      <div class="col-md-3 mb-3"><label class="form-label">Minimum Height</label>{{ preference_form.minimum_height }}</div>
+      <div class="col-md-3 mb-3"><label class="form-label">Maximum Height</label>{{ preference_form.maximum_height }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Preferred Religion</label>{{ preference_form.religion }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Preferred Caste</label>{{ preference_form.caste }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Preferred Education</label>{{ preference_form.education }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Preferred Profession</label>{{ preference_form.profession }}</div>
+
+      <div class="col-md-6 mb-3"><label class="form-label">Minimum Annual Income</label>{{ preference_form.minimum_salary }}</div>
+      <div class="col-md-6 mb-3"><label class="form-label">Maximum Annual Income</label>{{ preference_form.maximum_salary }}</div>
+
+      <div class="col-md-4 mb-3"><label class="form-label">Preferred Country</label>{{ preference_form.country }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Preferred State</label>{{ preference_form.state }}</div>
+      <div class="col-md-4 mb-3"><label class="form-label">Preferred City</label>{{ preference_form.city }}</div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Preferred Diet</label>
+        {{ preference_form.diet }}
+        <span class="text-muted small d-block mt-1">Select option (e.g. Vegetarian)</span>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Preferred Smoking</label>
+        {{ preference_form.smoking }}
+        <span class="text-muted small d-block mt-1">Select option (e.g. No, Yes, Occasionally)</span>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Preferred Drinking</label>
+        {{ preference_form.drinking }}
+        <span class="text-muted small d-block mt-1">Select option (e.g. No, Yes, Occasionally)</span>
+      </div>
+      <div class="col-md-12 mb-3"><label class="form-label">Horoscope Preferences</label>{{ preference_form.horoscope_preferences }}</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">
+      {% if user_obj %}Save Changes{% else %}Create User{% endif %}
+    </button>
+    <a href="{% url 'user-dashboard' %}" class="btn btn-outline-secondary mt-2">Cancel</a>
+  </form>
+  </div>
+</div>
+
+{% endblock %}

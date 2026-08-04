@@ -1,0 +1,442 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        {% block title %}
+        Admin Dashboard
+        {% endblock %}
+    </title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #f8fafc;
+            --sidebar-bg: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -6px rgba(0, 0, 0, 0.04);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: var(--background);
+            overflow-x: hidden;
+            font-family: 'Outfit', sans-serif;
+            color: #1e293b;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .sidebar .logo {
+            padding: 28px 24px;
+            font-size: 24px;
+            font-weight: 800;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar .logo span {
+            color: var(--primary);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            margin: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding-left: 28px;
+        }
+
+        .sidebar a.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: white;
+            font-weight: 600;
+            border-left-color: var(--primary);
+        }
+
+        .sidebar i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .main {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar Styling */
+        .navbar-custom {
+            height: 75px;
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+        }
+
+        .navbar-custom .dropdown-toggle::after {
+            display: none !important;
+        }
+
+        .content {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #f1f5f9;
+            background: white;
+        }
+
+        /* Global Premium CSS Overrides */
+        .card {
+            border: none !important;
+            box-shadow: var(--card-shadow) !important;
+            border-radius: 16px !important;
+            transition: var(--transition) !important;
+            background: white;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover) !important;
+        }
+
+        .btn {
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px !important;
+            transition: var(--transition) !important;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.65rem !important;
+            font-size: 0.8rem !important;
+            border-radius: 8px !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-hover) !important;
+            border-color: var(--primary-hover) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-light {
+            background: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #475569 !important;
+        }
+
+        .btn-light:hover {
+            background: #e2e8f0 !important;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px !important;
+            padding: 0.65rem 1rem !important;
+            font-size: 0.925rem !important;
+            transition: var(--transition) !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            font-size: 0.775rem !important;
+        }
+
+        .badge.bg-primary {
+            background-color: rgba(99, 102, 241, 0.08) !important;
+            color: var(--primary) !important;
+            border: 1px solid rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .badge.bg-success {
+            background-color: rgba(16, 185, 129, 0.08) !important;
+            color: var(--success) !important;
+            border: 1px solid rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .badge.bg-secondary {
+            background-color: rgba(100, 116, 139, 0.08) !important;
+            color: var(--secondary) !important;
+            border: 1px solid rgba(100, 116, 139, 0.15) !important;
+        }
+
+        .badge.bg-danger {
+            background-color: rgba(239, 68, 68, 0.08) !important;
+            color: var(--danger) !important;
+            border: 1px solid rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .badge.bg-warning {
+            background-color: rgba(245, 158, 11, 0.08) !important;
+            color: var(--warning) !important;
+            border: 1px solid rgba(245, 158, 11, 0.15) !important;
+        }
+
+        /* Stat Icon */
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+            color: #334155;
+            vertical-align: middle;
+            border-collapse: collapse !important;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #475569;
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 10px 14px !important;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 10px 14px !important;
+            border-top: none !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .table tr:hover td {
+            background-color: #f8fafc !important;
+        }
+
+        .table-responsive {
+            border-radius: 12px;
+        }
+    </style>
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Matrimony<span>.</span>
+        </div>
+
+        <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fa-solid fa-gauge"></i>
+            Dashboard
+        </a>
+        <a href="{% url 'roles' %}" class="{% if 'roles' in request.path or 'permissions' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-user-shield"></i>
+            Roles & Permissions
+        </a>
+        <a href="{% url 'user-dashboard' %}" class="{% if 'users' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-users"></i>
+            Users
+        </a>
+
+
+
+        <a href="#">
+            <i class="fa-solid fa-user-tie"></i>
+            Vendors
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-store"></i>
+            Businesses
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-credit-card"></i>
+            Payments
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-bullhorn"></i>
+            Advertisements
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-crown"></i>
+            Subscriptions
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-envelope"></i>
+            Enquiries
+        </a>
+
+        <a href="#">
+            <i class="fa-solid fa-gear"></i>
+            Settings
+        </a>
+
+    </div>
+
+    <div class="main">
+        <nav class="navbar navbar-expand navbar-custom">
+            <h4 class="mb-0 fw-bold text-dark">
+                {% block page_title %}
+                Dashboard Overview
+                {% endblock %}
+            </h4>
+
+            <div class="d-flex align-items-center gap-3">
+                <!-- Notifications icon -->
+                <div class="position-relative cursor-pointer d-none d-md-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background-color: #f1f5f9; border-radius: 50%; border: 1px solid #e2e8f0;">
+                    <i class="fa-regular fa-bell text-secondary" style="font-size: 0.95rem;"></i>
+                    <span class="position-absolute p-1 bg-danger border border-light rounded-circle" style="top: 8px; right: 8px;"></span>
+                </div>
+                <!-- Profile dropdown -->
+
+                <div class="dropdown">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" style="outline: none; border: none;">
+                        <div class="admin-avatar-circle" style="width: 38px; height: 38px; background-color: #f1f5f9; color: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; border: 1px solid #e2e8f0;">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div class="ms-2 d-none d-sm-block text-start">
+                            <div class="fw-semibold text-dark" style="font-size: 0.9rem; line-height: 1.2;">Admin Panel</div>
+                            <div class="text-muted" style="font-size: 0.75rem; line-height: 1.1;">Super Admin</div>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="border-radius: 12px; min-width: 180px;">
+                        <li>
+                            <a class="dropdown-item py-2" href="#">
+                                <i class="fa-solid fa-user me-2 text-muted"></i>Profile
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item py-2 text-danger" href="{% url 'admin-logout' %}">
+                                <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" style="border-radius: 12px;">
+                {{ message }}
+                <button class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% block content %}
+            <!-- Clean placeholder / Dashboard homepage -->
+            <div class="text-center py-5">
+                <div class="mb-4 text-muted opacity-50">
+                    <i class="fa-solid fa-gauge display-1"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Matrimony Management Panel</h4>
+                <p class="text-muted">Select a menu item from the sidebar to start managing resources.</p>
+            </div>
+            {% endblock %}
+
+        </div>
+
+        <div class="footer border-top mt-4">
+            © 2026 Matrimony. All rights reserved.
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block js %}
+    {% endblock %}
+
+</body>
+
+</html>

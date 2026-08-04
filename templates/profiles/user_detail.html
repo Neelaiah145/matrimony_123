@@ -1,0 +1,92 @@
+{% extends 'admin-dashboard.html' %}
+{% block page_title %}User Details{% endblock %}
+{% block content %}
+
+<div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+  <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-1 fw-bold text-dark">
+        <i class="fa-solid fa-user-shield text-primary me-2"></i>
+        {{ user_obj.first_name }} {{ user_obj.last_name }}
+      </h5>
+      <p class="text-muted mb-0 small">Account details, profile parameters, and partner matching preferences.</p>
+    </div>
+    <div>
+      <a href="{% url 'user-dashboard' %}" class="btn btn-light border me-2" style="border-radius: 8px;">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
+      </a>
+      <a href="{% url 'edit-user' user_obj.pk %}" class="btn btn-primary" style="border-radius: 8px;">
+        <i class="fa-solid fa-user-pen me-1"></i> Edit User
+      </a>
+    </div>
+  </div>
+  <div class="card-body p-4">
+
+  <h6 class="text-muted mb-2">Account Details</h6>
+  <div class="row mb-3">
+    <div class="col-md-6 mb-2"><strong>Phone:</strong> {{ user_obj.phone }}</div>
+    <div class="col-md-6 mb-2"><strong>Email:</strong> {{ user_obj.email|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Gender:</strong> {{ user_obj.gender }}</div>
+    <div class="col-md-6 mb-2"><strong>Date of Birth:</strong> {{ user_obj.date_of_birth }}</div>
+    <div class="col-md-6 mb-2"><strong>Role:</strong> {{ user_obj.role }}</div>
+    <div class="col-md-6 mb-2"><strong>Registered For:</strong> {{ user_obj.register_for }}</div>
+    <div class="col-md-6 mb-2"><strong>Phone Verified:</strong> {{ user_obj.is_phone_verified|yesno:"Yes,No" }}</div>
+    <div class="col-md-6 mb-2"><strong>Email Verified:</strong> {{ user_obj.is_email_verified|yesno:"Yes,No" }}</div>
+  </div>
+
+  <hr>
+  <h6 class="text-muted mb-2">Profile Details</h6>
+  {% if profile %}
+  <div class="row">
+    <div class="col-md-6 mb-2"><strong>Height:</strong> {{ profile.height|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Weight:</strong> {{ profile.weight|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Complexion:</strong> {{ profile.complexion|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Education:</strong> {{ profile.highest_education }}</div>
+    <div class="col-md-6 mb-2"><strong>Occupation:</strong> {{ profile.occupation }}</div>
+    <div class="col-md-6 mb-2"><strong>Annual Income:</strong> {{ profile.annual_income|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Religion:</strong> {{ profile.religion }}</div>
+    <div class="col-md-6 mb-2"><strong>Caste:</strong> {{ profile.caste|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Rashi:</strong> {{ profile.rashi|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Nakshatra:</strong> {{ profile.nakshatra|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Dosha:</strong> {{ profile.dosha|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Diet:</strong> {{ profile.diet }}</div>
+    <div class="col-md-4 mb-2"><strong>Smoking:</strong> {{ profile.smoking }}</div>
+    <div class="col-md-4 mb-2"><strong>Drinking:</strong> {{ profile.drinking }}</div>
+    <div class="col-md-6 mb-2"><strong>Marital Status:</strong> {{ profile.marital_status }}</div>
+    <div class="col-md-6 mb-2"><strong>Languages Known:</strong> {{ profile.languages_known }}</div>
+    <div class="col-md-4 mb-2"><strong>Country:</strong> {{ profile.country|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>State:</strong> {{ profile.state|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>City:</strong> {{ profile.city|default:"-" }}</div>
+    <div class="col-md-12 mb-2"><strong>About Me:</strong> {{ profile.about_me|default:"-" }}</div>
+    <div class="col-md-12 mb-2"><strong>Hobbies:</strong> {{ profile.hobbies_interests|default:"-" }}</div>
+    <div class="col-md-12 mb-2"><strong>Family Info:</strong> {{ profile.family_information|default:"-" }}</div>
+  </div>
+  {% else %}
+  <p class="text-muted">No profile filled in yet.</p>
+  {% endif %}
+
+  <hr>
+  <h6 class="text-muted mb-2">Partner Preferences</h6>
+  {% if preference %}
+  <div class="row">
+    <div class="col-md-6 mb-2"><strong>Preferred Age Range:</strong> {{ preference.minimum_age }} - {{ preference.maximum_age }} years</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Height Range:</strong> {{ preference.minimum_height }} - {{ preference.maximum_height }}</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Religion:</strong> {{ preference.religion|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Caste:</strong> {{ preference.caste|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Education:</strong> {{ preference.education|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Profession:</strong> {{ preference.profession|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Income Range:</strong> {{ preference.minimum_salary|default:"-" }} - {{ preference.maximum_salary|default:"-" }}</div>
+    <div class="col-md-6 mb-2"><strong>Preferred Location:</strong> {{ preference.city|default:"" }}{% if preference.state %}, {{ preference.state }}{% endif %}{% if preference.country %}, {{ preference.country }}{% endif %}{% if not preference.city and not preference.state and not preference.country %}-{% endif %}</div>
+    <div class="col-md-4 mb-2"><strong>Preferred Diet:</strong> {{ preference.diet|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Preferred Smoking:</strong> {{ preference.smoking|default:"-" }}</div>
+    <div class="col-md-4 mb-2"><strong>Preferred Drinking:</strong> {{ preference.drinking|default:"-" }}</div>
+    <div class="col-md-12 mb-2"><strong>Horoscope Preferences:</strong> {{ preference.horoscope_preferences|default:"-" }}</div>
+  </div>
+  {% else %}
+  <p class="text-muted">No partner preferences specified yet.</p>
+  {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

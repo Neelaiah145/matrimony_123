@@ -1,0 +1,108 @@
+{% extends 'admin-dashboard.html' %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm border-0" style="border-radius: 16px;">
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <div>
+            <h5 class="mb-1 fw-bold text-dark"><i class="fa-solid fa-users text-primary me-2"></i>User Directory</h5>
+            <p class="text-muted mb-0 small">Manage registered users, their profiles, and partner preferences.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'export-users' %}" class="btn btn-light border" style="border-radius: 10px; font-weight: 500;">
+              <i class="fa-solid fa-file-export me-1 text-muted"></i> Export to CSV
+            </a>
+            <a href="{% url 'create-user' %}" class="btn btn-primary" style="border-radius: 10px;">
+              <i class="fa-solid fa-plus me-1"></i> Add New User
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form method="get" class="mb-3">
+  <div class="input-group" style="max-width: 400px;">
+    <input type="text" name="search" class="form-control" placeholder="Search by name, email or phone" value="{{ search }}" style="border-radius: 10px 0 0 10px;">
+    <button type="submit" class="btn btn-primary" style="border-radius: 0 10px 10px 0;">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+    {% if search %}
+      <a href="{% url 'user-dashboard' %}" class="btn btn-light border ms-2" style="border-radius: 10px;">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="border-collapse: collapse;">
+        <thead class="table-light text-secondary" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+          <tr>
+            <th class="py-3 ps-4" width="80">S.No</th>
+            <th class="py-3">Name</th>
+            <th class="py-3">Email</th>
+            <th class="py-3">Phone</th>
+            <th class="py-3">Gender</th>
+            <th class="py-3">Location</th>
+            <th class="py-3 text-end pe-4" width="180">Actions</th>
+          </tr>
+        </thead>
+        <tbody style="font-size: 0.95rem;">
+          {% for u in users %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td class="py-3 ps-4 text-muted fw-medium">{{ forloop.counter }}</td>
+            <td class="py-3">
+              <span class="fw-semibold text-dark">{{ u.first_name }} {{ u.last_name }}</span>
+            </td>
+            <td class="py-3 text-muted">{{ u.email|default:"-" }}</td>
+            <td class="py-3 text-dark fw-medium">{{ u.phone|default:"-" }}</td>
+            <td class="py-3">
+              {% if u.gender == 'MALE' %}
+              <span class="badge bg-primary" style="font-size: 0.75rem;"><i class="fa-solid fa-mars me-1"></i>Male</span>
+              {% elif u.gender == 'FEMALE' %}
+              <span class="badge bg-rose text-white" style="background-color: #f43f5e !important; font-size: 0.75rem;"><i class="fa-solid fa-venus me-1"></i>Female</span>
+              {% else %}
+              <span class="badge bg-light text-muted" style="font-size: 0.75rem;">-</span>
+              {% endif %}
+            </td>
+            <td class="py-3 text-muted small">
+              {% if u.profile.city or u.profile.state or u.profile.country %}
+                {{ u.profile.city|default:"" }}{% if u.profile.state %}, {{ u.profile.state }}{% endif %}{% if u.profile.country %}, {{ u.profile.country }}{% endif %}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td class="py-3 text-end pe-4">
+              <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                <a href="{% url 'user-detail' u.pk %}" class="btn btn-sm btn-light border" title="View" style="border-radius: 8px;">
+                  <i class="fa-solid fa-eye text-muted"></i>
+                </a>
+                <a href="{% url 'edit-user' u.pk %}" class="btn btn-sm btn-light border" title="Edit" style="border-radius: 8px;">
+                  <i class="fa-solid fa-pen text-muted"></i>
+                </a>
+                <a href="{% url 'delete-user' u.pk %}" class="btn btn-sm btn-light border text-danger" title="Delete" style="border-radius: 8px;">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="fa-regular fa-folder-open display-6 mb-3 d-block text-muted"></i>
+              No users found in directory.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
