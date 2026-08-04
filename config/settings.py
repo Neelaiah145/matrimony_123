@@ -172,5 +172,7 @@ NINJA_JWT = {
 
 LOGIN_URL = 'login'
 
+import os
 
+print("DB_HOST:", os.getenv("DB_HOST"))
 
