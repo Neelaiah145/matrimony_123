@@ -29,9 +29,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 AUTH_USER_MODEL = "accounts.User"
 ALLOWED_HOSTS = [
-    "precious-truth-production-26b8.up.railway.app",
-    "localhost",
-    "127.0.0.1",
+   "precious-truth-production-26b8.up.railway.app"
 ]
 
 
