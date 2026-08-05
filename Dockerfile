@@ -20,5 +20,5 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000; echo 'Server exited with code $?'; sleep 300"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --log-level debug --capture-output --access-logfile - --error-logfile -"]
 
