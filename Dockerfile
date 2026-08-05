@@ -20,4 +20,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "echo 'STEP 1'; python manage.py migrate && echo 'STEP 2'; python manage.py check && echo 'STEP 3'; gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --log-level debug --access-logfile - --error-logfile -"]
+CMD ["sh", "-c", "echo 'STEP 1'; python manage.py migrate; echo 'STEP 2'; python manage.py check; echo 'STEP 3'; exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 1 --log-level debug --capture-output --access-logfile - --error-logfile -"]
