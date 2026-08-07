@@ -29,10 +29,10 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 AUTH_USER_MODEL = "accounts.User"
 ALLOWED_HOSTS = [
-   "precious-truth-production-26b8.up.railway.app"
+   "matrimony-production-e116.up.railway.app"
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://precious-truth-production-26b8.up.railway.app",
+    "https://matrimony-production-e116.up.railway.app",
 ]
 
 # Application definition
@@ -176,7 +176,6 @@ NINJA_JWT = {
 
 LOGIN_URL = 'login'
 
-import os
 
-print("DB_HOST:", os.getenv("DB_HOST"))
+
 
