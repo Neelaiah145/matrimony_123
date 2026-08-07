@@ -31,7 +31,9 @@ AUTH_USER_MODEL = "accounts.User"
 ALLOWED_HOSTS = [
    "precious-truth-production-26b8.up.railway.app"
 ]
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://precious-truth-production-26b8.up.railway.app",
+]
 
 # Application definition
 
